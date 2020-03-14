@@ -31,7 +31,8 @@ class Cat(Pet):
     def create_item(self):
         self.item = {
             "food_bowl": 0,
-            "litter_box": 0
+            "litter_box": 0,
+            "shit_on_floor": 0
         }
 
     # This function will exhibit a behavior from the cat through the use of a behavior tree
@@ -141,8 +142,12 @@ class Cat(Pet):
         social.child_nodes = [meow]
 
         # Sleep Branch
-        sleep = Sequence(name='Sleep')
+        energy = Sequence(name='energy')
         go_to_sleep = Action(go_to_sleep)
+        energy.child_nodes = [go_to_sleep]
+
+        sleep = Sequence(name='sleep')
+        sleeping = Action(sleeping)
         sleep.child_nodes = [go_to_sleep]
 
         # Root Children
