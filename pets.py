@@ -16,6 +16,24 @@ class Dog(Pet):
 
 class Cat(Pet):
 
+    def __init__(self):
+        self.meter = {
+            "hunger": 0,
+            "energy": 0,
+            "bladder": 0,
+            "fun": 0,
+            "hygiene": 0,
+            "social": 0,
+            "sleeping": 0,
+            "ready_to_play": 0
+        }
+
+    def create_item(self):
+        self.item = {
+            "food_bowl": 0,
+            "litter_box": 0,
+            "shit_on_floor": 0
+        }
 
     # This function will exhibit a behavior from the cat through the use of a behavior tree
     def execute(self, meters, items):
@@ -58,25 +76,11 @@ class Cat(Pet):
             self.actions(meters, items)
 
     # Initialize the cat's meters, this function should be called only once
-    def __init__(self):
-        self.meter = {
-            "hunger": 0,
-            "energy": 0,
-            "bladder": 0,
-            "fun": 0,
-            "hygiene": 0,
-            "social": 0,
-            "sleeping": 0,
-            "ready_to_play": 0
-        }
+
 
 
     # Create items necessary for a cat, function should be called only once as well
-    def create_item(self):
-        self.item = {
-            "food_bowl": 0,
-            "litter_box": 100
-        }
+
 
     # Increment cat meters over time to represent realistic needs of a cat
     def increase_meter(self, meter):
@@ -138,16 +142,21 @@ class Cat(Pet):
         social.child_nodes = [meow]
 
         # Sleep Branch
-        sleep = Sequence(name='Sleep')
+        energy = Sequence(name='energy')
         go_to_sleep = Action(go_to_sleep)
+        energy.child_nodes = [go_to_sleep]
+
+        sleep = Sequence(name='sleep')
+        sleeping = Action(sleeping)
         sleep.child_nodes = [go_to_sleep]
 
         # Root Children
         root.child_nodes = [turn_play_off, cat_priority_selector]
-
+        cat_priority_selector.child_nodes = [hunger, fun, social, bladder, energy, hygiene, sleep]
 
         logging.info('\n' + root.tree_to_string())
         return root
+    
 
 # Fish info
 # Selector: What the fish do

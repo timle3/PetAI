@@ -2,20 +2,11 @@
 def trivial_check(state):
     return True
 
-################### CAT & DOG SHARED STUFF #####################
+def if_bowl_full(state):
+    return state["petItems"]["food_bowl"] > 0
 
-def can_eat_from_bowl(state): # Used by cat & dog (since they share a food bowl)
-    return state.food_bowl > 10
+def social_meter(state):
+    return state["petMeters"]["social"] > 35
 
-################### CAT STUFF ###################
-
-def cat_is_sociable(state): # Assumes state.cat is the only cat we care about
-    return state.priority(state.cat.meter["social"]) > 60
-
-def cat_is_litter_box_full(state):
-    return state.litter_box > 10
-
-################### DOG STUFF ###################
-
-def dog_is_sociable(state): # Assumes state.cat is the only cat we care about
-    return state.priority(state.dog.meter["social"]) > 30
+def check_box(state):
+    return state["petItems"]["litter_box"] > 0
