@@ -1,6 +1,7 @@
 from copy import deepcopy
 import logging
 import random
+import math
 from mainClient import *
 
 def log_execution(fn):
@@ -32,6 +33,9 @@ class Composite(Node):
     def execute(self, state):
         raise NotImplementedError
 
+    def name(self):
+        raise self.name
+
     def __str__(self):
         return self.__class__.__name__ + ': ' + self.name if self.name else ''
 
@@ -46,6 +50,48 @@ class Composite(Node):
 
 
 ############################### Composite Nodes ##################################
+class CatSelector(Composite):
+    @log_execution
+    def execute(self, state):
+        highest_priority = ((state["petMeters"]["hunger"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
+        code = "Hunger"
+
+        temp = ((state["petMeters"]["energy"] ** 2) / 320) + (state["energy"]["hunger"] / 3)
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Energy"
+
+        temp = 500 * (math.cos((state["petMeters"]["bladder"] - 100) / 100)) ** 1000
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Bladder"
+
+        temp = state["petMeters"]["fun"] / 2
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Fun"
+
+        temp = state["petMeters"]["hygiene"] / 2
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Hygiene"
+
+        temp = state["petMeters"]["social"] / 2
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Social"
+
+        if state["petMeters"]["sleeping"] == 1 and highest_priority < 35 :
+            for child_node in self.child_nodes:
+                if child_node.name() == "Sleep":
+                    return child_node.execute(state)
+
+        else:
+            state["petMeters"]["sleeping"] == 0
+            for child_node in self.child_nodes:
+                if child_node.name() == code:
+                    return child_node.execute(state)
+
 class Selector(Composite):
     @log_execution
     def execute(self, state):
@@ -70,6 +116,7 @@ class Sequence(Composite):
 
 
 ############################### Decorator Nodes ##################################
+
 class Inverter(Composite):
     @log_execution
     def execute(self, state):
