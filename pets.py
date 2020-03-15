@@ -12,7 +12,7 @@ class Pet:
 
 
 class Dog(Pet):
-    
+
     def __init__(self, name=None):
         self.name = name
         self.meter = {
@@ -32,7 +32,7 @@ class Dog(Pet):
 
     # Available actions for the owner (player) to do
     def actions(self, state, bt):
-        
+
 
     def create_behavior_tree(self):
         # Root node for cat
@@ -70,7 +70,7 @@ class Dog(Pet):
         improper_relief_selector.child_node = [check_door, improper_relief_always_false]
         dog_proper_relief = Action(dog_proper_relief)
         bladder.child_node = [improper_relief_selector, dog_proper_relief]
-        
+
         fun = Sequence(name='fun')
         running_around = Action(running_around)
         fun.child_node = [running_around]
@@ -330,14 +330,15 @@ class Cat(Pet):
 # Fish info
 # Selector: What the fish do
 # | Sequence: Ensure the fish is fed
-# | | Check: if the tanks is clean
-# | | Check: if a human is nearby
-# | | Check: if I'm not already swimming slowly
+# | | Check: if I'm hungry
 # | | Action: swim slowly
 # | Sequence: Ensure the tank is clean
 # | | Check: if the tank is clean
-# | | Check: if_not_swimming_sideways
 # | | Action: swim_sideways
+# | Sequence: Sleep if tired
+# | | Check: if the fish is tired
+# | | Action: sleep
+# | Action: "Idle": swim around normally
 
 class Fish:
     def __init__(self):
@@ -346,7 +347,7 @@ class Fish:
 
         # Root node for fish
         root = Sequence(name='Fish behaviors')
-        root.child_nodes = [hunger, hygiene, sleep]
+        root.child_nodes = [hunger, hygiene, sleep, default]
 
         # Hunger branch
         hunger = Sequence(name='Hunger')
@@ -377,6 +378,9 @@ class Fish:
         tired_check = Check(if_tired)
         go_to_sleep = Action(sleeping)
         sleep.child_nodes = [tired_check, go_to_sleep]
+
+        # Default/idle
+        default = Action(swim)
 
 
     # Increment cat meters over time to represent realistic needs of a cat
