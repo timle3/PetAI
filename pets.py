@@ -171,6 +171,42 @@ class Fish:
         self.bt_root = Selector(name='What the fish do')
         # Set up the other stuff to reflect the logic above
 
+        # Root node for fish
+        root = Sequence(name='Fish behaviors')
+        root.child_nodes = [hunger, hygiene, sleep]
+
+        # Hunger branch
+        hunger = Sequence(name='Hunger')
+
+        bowl_checker = Sequence(name='Bowl Checker')
+        check_food = Check(if_bowl_full)
+        swim = Action(swim)
+
+        eat = Action(eat)
+
+        hunger.child_nodes = [bowl_checker, eat]
+        bowl_checker.child_nodes = [check_food, swim]
+
+
+        # Hygiene branch
+        hygiene = Sequence(name='Hygiene')
+
+        clean_bowl = Sequence(name='Clean Bowl')
+        clean_bowl_check = Check(if_bowl_clean)
+        if_not_swimming_sideways = Check(if_not_swimming_sideways)
+        swim_sideways = Action(swim_sideways)
+
+        hygiene.child_nodes = [clean_bowl]
+        clean_bowl.child_nodes = [clean_bowl_check, if_not_swimming_sideways, swim_sideways]
+
+        # Sleep branch
+        sleep = Sequence(name='Sleep')
+
+        tired_check = Check(if_tired)
+        go_to_sleep = Action(sleeping)
+        sleep.child_nodes = [tired_check, go_to_sleep]
+
+
     def tick(self, state):
         self.bt_root.execute(state)
 
