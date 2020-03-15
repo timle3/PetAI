@@ -12,8 +12,119 @@ class Pet:
 
 
 class Dog(Pet):
-    def execute(self):
-        pass
+    
+    def __init__(self, name=None):
+        self.name = name
+        self.meter = {
+            "hunger": 0,
+            "energy": 0,
+            "bladder": 0,
+            "fun": 0,
+            "hygiene": 0,
+            "social": 0,
+            "sleeping": False,
+        }
+        self.item = {
+            "food_bowl": 0,
+            "door_opened": False,
+            "shit_on_floor": 0
+        }
+
+    # Available actions for the owner (player) to do
+    def actions(self, state, bt):
+        
+
+    def create_behavior_tree(self):
+        # Root node for cat
+        root = Sequence(name='Dog Behaviors')
+
+        hygiene_always_false = AlwaysFalse(name='dog hygiene always false')
+        hygiene_sequence = Sequence(name='dog hygiene sequence')
+        check_hygiene = Check(dog_check_hygiene)
+        shaking = Action(dog_shaking)
+        hygiene_sequence.child_nodes = [check_hygiene, shaking]
+        hygiene_always_false.child_node = [hygiene_sequence]
+
+        dog_priority_selector = DogSelector(name='Dog Priority')
+
+        hunger = Sequence(name='hunger')
+        bowl_selector = Selector(name = 'bowl selector')
+        check_bowl = Check(if_bowl_full)
+        bark_for_food = Action(bark_for_food)
+        bowl_selector.child_node = [check_bowl, bark_for_food]
+        eating = Action(eat)
+        hunger.child_node = [bowl_selector, eating]
+
+        bladder = Sequence(name='bladder')
+        improper_relief_selector = Selector(name= 'improper relief selector')
+        check_door = Check(check_door)
+        improper_relief_always_false = AlwaysFalse(name = 'improper relief always false')
+        improper_relief_always_false_selector = Selector(name = 'improper relief always false selector')
+        bark_at_door_sequence = Sequence(name = 'bark at door sequence')
+        check_bladder = Check(check_bladder)
+        bark_at_door = Action(bark_at_door)
+        improper_relief = Action(improper_relief)
+        bark_at_door_sequence.child_node = [check_bladder, bark_at_door]
+        improper_relief_always_false_selector.child_node = [bark_at_door_sequence, improper_relief]
+        improper_relief_always_false.child_node = [improper_relief_always_false_selector]
+        improper_relief_selector.child_node = [check_door, improper_relief_always_false]
+        dog_proper_relief = Action(dog_proper_relief)
+        bladder.child_node = [improper_relief_selector, dog_proper_relief]
+        
+        fun = Sequence(name='fun')
+        running_around = Action(running_around)
+        fun.child_node = [running_around]
+
+        social = Sequence(name='social')
+        barking = Action(barking)
+        social.child_node = [barking]
+
+        energy = Sequence(name='energy')
+        go_to_sleep_action = Action(go_to_sleep)
+        energy.child_nodes = [go_to_sleep_action]
+
+        sleep = Sequence(name='sleep')
+        sleeping_action = Action(sleeping)
+        sleep.child_nodes = [sleeping_action]
+
+        dog_priority_selector.child_node = [hunger, bladder, fun, social, energy, sleep]
+        root.child_node = [hygiene_always_false, dog_priority_selector]
+        return root
+
+    # Increment cat meters over time to represent realistic needs of a cat
+    def increase_meter(self, meter):
+        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
+        for key, val in meter.items():
+            if key == 'hunger' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hunger' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'energy' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'energy' and meter['sleeping'] == False:
+                meter[key] += 2
+
+            if key == 'hygiene' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hygiene' and meter['sleeping'] == False:
+                meter[key] += 3
+
+            if key == 'bladder' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'bladder' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'fun' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'fun' and meter['sleeping'] == False:
+                meter[key] += 4
+
+            if key == 'social' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'social' and meter['sleeping'] == False:
+                meter[key] += 4
+
 
 class Cat(Pet):
 
@@ -180,7 +291,7 @@ class Cat(Pet):
         logging.info('\n' + root.tree_to_string())
         return root
 
-        # Increment dog meters over time to represent realistic needs of a dog
+        # Increment fish meters over time to represent realistic needs of a fish
     def increase_meter(self, meter):
         numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
         for key, val in meter.items():
