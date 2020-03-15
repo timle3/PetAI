@@ -1,6 +1,7 @@
 from bt_nodes import *
 from checks import *
 from behaviors import *
+import random
 
 class Pet:
     def __init__(self, name=None):
@@ -16,7 +17,8 @@ class Dog(Pet):
 
 class Cat(Pet):
 
-    def __init__(self):
+    def __init__(self, name=None):
+        self.name = name
         self.meter = {
             "hunger": 0,
             "energy": 0,
@@ -24,23 +26,17 @@ class Cat(Pet):
             "fun": 0,
             "hygiene": 0,
             "social": 0,
-            "sleeping": 0,
-            "ready_to_play": 0
+            "sleeping": False,
+            "ready_to_play": False
         }
-
-    def create_item(self):
         self.item = {
             "food_bowl": 0,
-            "litter_box": 0,
+            "litter_box": 100,
             "shit_on_floor": 0
         }
 
-    # This function will exhibit a behavior from the cat through the use of a behavior tree
-    def execute(self, meters, items):
-        print("My hunger is {}".format(meters["hunger"]))
-
     # Available actions for the owner (player) to do
-    def actions(self, meters, items):
+    def actions(self, state, bt):
         print("Available Actions")
         print("1. Fill food bowl")
         print("2. Clean litter box")
@@ -53,10 +49,10 @@ class Cat(Pet):
             choice = int(input("Enter the number of the action you want to do: "))
             print()
             if choice == 1:
-                items["food_bowl"] = 100
+                state["petItems"]["food_bowl"] = 100
                 print("Food bowl has been filled.")
             elif choice == 2:
-                items["litter_box"] = 100
+                state["petItems"]["litter_box"] = 100
                 print("Litter box has been cleaned.")
             elif choice == 3:
                 print(choice)
@@ -64,96 +60,89 @@ class Cat(Pet):
                 pass
             elif choice == 5:
                 for _ in range(47):
-                    self.increase_meter(meters)
-                    self.execute(meters, items)
+                    self.increase_meter(state["petMeters"])
+                    bt.execute(state)
             elif choice == 6:
-                print("Food bowl is {}% filled".format(items["food_bowl"]))
-                print("Litter box is {}% clean".format(items["litter_box"]))
+                print("Food bowl is {}% filled".format(state["petItems"]["food_bowl"]))
+                print("Litter box is {}% clean".format(state["petItems"]["litter_box"]))
             else:
                 raise ValueError("Invalid Choice")
         except ValueError as e:
             print("Input is not a choice. Please select a valid choice.")
-            self.actions(meters, items)
-
-    # Initialize the cat's meters, this function should be called only once
-
-
-
-    # Create items necessary for a cat, function should be called only once as well
-
+            self.actions(state, bt)
 
     # Increment cat meters over time to represent realistic needs of a cat
     def increase_meter(self, meter):
-        for key, value in meter.items():
-            meter[key] += 1
+        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
+        for key, val in meter.items():
+            if key in numMeter and val < 100:
+                meter[key] += 1
 
-    def create_behavior_tree():
-
+    def create_behavior_tree(self):
         # Root node for cat
         root = Sequence(name='Cat Behaviors')
 
         turn_play_off = Action(playing_reset)
-
-        cat_priority_selector = CatSelector(name= 'Cat Priority')
+        cat_priority_selector = CatSelector(name='Cat Priority')
 
         # Hunger Branch
 
         hunger = Sequence(name='Hunger')
 
-        bowl_checker = Selector(name= 'Bowl Checker')
+        bowl_checker = Selector(name='Bowl Checker')
         check_food = Check(if_bowl_full)
-        call_owner = Action(call_owner)
-        eat = Action(eat)
+        call_owner_action = Action(call_owner)
+        eat_action = Action(eat)
 
-        hunger.child_nodes = [bowl_checker, eat]
-        bowl_checker.child_nodes = [check_food, call_owner]
+        hunger.child_nodes = [bowl_checker, eat_action]
+        bowl_checker.child_nodes = [check_food, call_owner_action]
 
         # Fun Branch
         fun = Selector(name='Fun')
 
         social = Sequence(name='Check Social')
         check_social = Check(social_meter)
-        meow = Action(meow)
-        ready_to_play = Action(ready_to_play)
-        play_alone = Action(play_alone)
+        meow_action = Action(meow)
+        ready_to_play_action = Action(ready_to_play)
+        play_alone_action = Action(play_alone)
 
-        fun.child_nodes = [social, play_alone]
-        social.child_nodes = [check_social, meow, ready_to_play]
+        fun.child_nodes = [social, play_alone_action]
+        social.child_nodes = [check_social, meow_action, ready_to_play_action]
 
         # Bladder Branch
         bladder = Selector(name='Bladder')
 
         proper_relief = Sequence(name='Proper Relief')
-        check_box = Check(check_box)
-        box_relief = Action(box_relief)
-        improper_relief = Action(improper_relief)
+        check_box_check = Check(check_box)
+        box_relief_action = Action(box_relief)
+        improper_relief_action = Action(improper_relief)
 
-        bladder.child_nodes = [proper_relief, improper_relief]
-        proper_relief.child_nodes = [check_box, box_relief]
+        bladder.child_nodes = [proper_relief, improper_relief_action]
+        proper_relief.child_nodes = [check_box_check, box_relief_action]
 
         # Hygiene Branch
         hygiene = Sequence(name='Hygiene')
-        clean_self = Action(clean_self)
-        hygiene.child_nodes = [clean_self]
+        clean_self_action = Action(clean_self)
+        hygiene.child_nodes = [clean_self_action]
 
         # Social Branch
         social = Sequence(name='Social')
-        meow = Action(meow)
-        social.child_nodes = [meow]
+        meow_action = Action(meow)
+        social.child_nodes = [meow_action]
 
         # Sleep Branch
         energy = Sequence(name='energy')
-        go_to_sleep = Action(go_to_sleep)
-        energy.child_nodes = [go_to_sleep]
+        go_to_sleep_action = Action(go_to_sleep)
+        energy.child_nodes = [go_to_sleep_action]
 
         sleep = Sequence(name='sleep')
-        sleeping = Action(sleeping)
-        sleep.child_nodes = [go_to_sleep]
+        sleeping_action = Action(sleeping)
+        sleep.child_nodes = [sleeping_action]
 
         # Root Children
-        root.child_nodes = [turn_play_off, cat_priority_selector]
         cat_priority_selector.child_nodes = [hunger, fun, social, bladder, energy, hygiene, sleep]
-
+        root.child_nodes = [turn_play_off, cat_priority_selector]
+        
         logging.info('\n' + root.tree_to_string())
         return root
     

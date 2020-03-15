@@ -22,15 +22,16 @@ if __name__ == "__main__":
     print()
     
     # Pet initialized, behaviors will now start and react to owner actions
-    petMeters = pet.create_meter()
-    petItems = pet.create_item()
+    petBT = pet.create_behavior_tree()
     gamestate = {
-        "petMeters" : petMeters,
-        "petItems" = petItems}
+        "petMeters" : pet.meter,
+        "petItems": pet.item
     }
 
     while(True):
-        pet.increase_meter(petMeters)
-        pet.execute(gamestate)
-        pet.actions(gamestate)
+        petBT.execute(gamestate)
+        pet.actions(gamestate, petBT)
         print()
+        print(gamestate["petMeters"])
+        print(gamestate["petItems"])
+        pet.increase_meter(pet.meter)

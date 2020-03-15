@@ -3,7 +3,7 @@ def trivial_behavior(state):
     return True
 
 def playing_reset(state):
-    state["petMeters"]["ready_to_play"] = 0
+    state["petMeters"]["ready_to_play"] = False
     return True
 
 def call_owner(state):
@@ -11,9 +11,9 @@ def call_owner(state):
     return False
 
 def eat(state):
-    state["petItems"]["food_bowl"] += 5
-    if state["petItems"]["food_bowl"] > 100:
-        state["petItems"]["food_bowl"] = 100
+    state["petItems"]["food_bowl"] -= 5
+    if state["petItems"]["food_bowl"] < 0:
+        state["petItems"]["food_bowl"] = 0
     state["petMeters"]["hunger"] -= 20
     if state["petMeters"]["hunger"] < 0:
         state["petMeters"]["hunger"] = 0
@@ -28,7 +28,7 @@ def meow(state):
     return True
 
 def ready_to_play(state):
-    state["petMeters"]["ready_to_play"] = 1
+    state["petMeters"]["ready_to_play"] = True
     return True
 
 def play_alone(state):
@@ -43,9 +43,9 @@ def play_alone(state):
 
 def box_relief(state):
     state["petMeters"]["bladder"] = 0
-    state["petItems"]["litter_box"] += 30
-    if state["petItems"]["litter_box"] > 100:
-        state["petItems"]["litter_box"] = 100
+    state["petItems"]["litter_box"] -= 30
+    if state["petItems"]["litter_box"] < 0:
+        state["petItems"]["litter_box"] = 0
     print("Cat is reliefing in the litter box.")
     return True
 
@@ -63,7 +63,7 @@ def clean_self(state):
     return True
 
 def go_to_sleep(state):
-    state["petMeters"]["sleeping"] = 1
+    state["petMeters"]["sleeping"] = True
     print("Cat is falling asleep.")
     return True
 

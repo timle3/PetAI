@@ -2,7 +2,6 @@ from copy import deepcopy
 import logging
 import random
 import math
-from mainClient import *
 
 def log_execution(fn):
     def logged_fn(self, state):
@@ -33,9 +32,6 @@ class Composite(Node):
     def execute(self, state):
         raise NotImplementedError
 
-    def name(self):
-        raise self.name
-
     def __str__(self):
         return self.__class__.__name__ + ': ' + self.name if self.name else ''
 
@@ -56,7 +52,7 @@ class CatSelector(Composite):
         highest_priority = ((state["petMeters"]["hunger"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
         code = "Hunger"
 
-        temp = ((state["petMeters"]["energy"] ** 2) / 320) + (state["energy"]["hunger"] / 3)
+        temp = ((state["petMeters"]["energy"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
         if temp > highest_priority:
             highest_priority = temp
             code = "Energy"
@@ -81,15 +77,15 @@ class CatSelector(Composite):
             highest_priority = temp
             code = "Social"
 
-        if state["petMeters"]["sleeping"] == 1 and highest_priority < 35 :
+        if state["petMeters"]["sleeping"] and highest_priority < 35 :
             for child_node in self.child_nodes:
-                if child_node.name() == "Sleep":
+                if child_node.name == "Sleep":
                     return child_node.execute(state)
 
         else:
-            state["petMeters"]["sleeping"] == 0
+            state["petMeters"]["sleeping"] = False
             for child_node in self.child_nodes:
-                if child_node.name() == code:
+                if child_node.name == code:
                     return child_node.execute(state)
 
 class Selector(Composite):
