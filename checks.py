@@ -10,3 +10,8 @@ def social_meter(state):
 
 def check_box(state):
     return state["petItems"]["litter_box"] > 0
+
+# For dogs/cats, are they feeling dirty?
+# For the fish, is the tank clean?
+def pet_feeling_clean():
+    return state["petMeters"]["hygiene"] > 50

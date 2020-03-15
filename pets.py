@@ -149,10 +149,10 @@ class Cat(Pet):
         # Root Children
         cat_priority_selector.child_nodes = [hunger, fun, social, bladder, energy, hygiene, sleep]
         root.child_nodes = [turn_play_off, cat_priority_selector]
-        
+
         logging.info('\n' + root.tree_to_string())
         return root
-    
+
 
 # Fish info
 # Selector: What the fish do
@@ -191,13 +191,12 @@ class Fish:
         # Hygiene branch
         hygiene = Sequence(name='Hygiene')
 
-        clean_bowl = Sequence(name='Clean Bowl')
-        clean_bowl_check = Check(if_bowl_clean)
-        if_not_swimming_sideways = Check(if_not_swimming_sideways)
+        clean_tank = Sequence(name='Clean Tank')
+        clean_tank_check = Check(if_bowl_clean)
         swim_sideways = Action(swim_sideways)
 
-        hygiene.child_nodes = [clean_bowl]
-        clean_bowl.child_nodes = [clean_bowl_check, if_not_swimming_sideways, swim_sideways]
+        hygiene.child_nodes = [clean_tank]
+        clean_tank.child_nodes = [clean_tank_check, swim_sideways]
 
         # Sleep branch
         sleep = Sequence(name='Sleep')
