@@ -82,8 +82,35 @@ class Cat(Pet):
     def increase_meter(self, meter):
         numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
         for key, val in meter.items():
-            if key in numMeter and val < 100:
-                meter[key] += 1
+            if key == 'hunger' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hunger' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'energy' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'energy' and meter['sleeping'] == False:
+                meter[key] += 2
+
+            if key == 'hygiene' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hygiene' and meter['sleeping'] == False:
+                meter[key] += 3
+
+            if key == 'bladder' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'bladder' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'fun' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'fun' and meter['sleeping'] == False:
+                meter[key] += 4
+
+            if key == 'social' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'social' and meter['sleeping'] == False:
+                meter[key] += 4
 
     def create_behavior_tree(self):
         # Root node for cat
@@ -153,6 +180,41 @@ class Cat(Pet):
         logging.info('\n' + root.tree_to_string())
         return root
 
+        # Increment dog meters over time to represent realistic needs of a dog
+    def increase_meter(self, meter):
+        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
+        for key, val in meter.items():
+            if key == 'hunger' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hunger' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'energy' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'energy' and meter['sleeping'] == False:
+                meter[key] += 2
+
+            if key == 'hygiene' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hygiene' and meter['sleeping'] == False:
+                meter[key] += 3
+
+            if key == 'bladder' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'bladder' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'fun' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'fun' and meter['sleeping'] == False:
+                meter[key] += 4
+
+            if key == 'social' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'social' and meter['sleeping'] == False:
+                meter[key] += 4
+
+
 
 # Fish info
 # Selector: What the fish do
@@ -206,8 +268,40 @@ class Fish:
         sleep.child_nodes = [tired_check, go_to_sleep]
 
 
-    def tick(self, state):
-        self.bt_root.execute(state)
+    # Increment cat meters over time to represent realistic needs of a cat
+    def increase_meter(self, meter):
+        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
+        for key, val in meter.items():
+            if key == 'hunger' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hunger' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'energy' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'energy' and meter['sleeping'] == False:
+                meter[key] += 2
+
+            if key == 'hygiene' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hygiene' and meter['sleeping'] == False:
+                meter[key] += 3
+
+            if key == 'bladder' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'bladder' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'fun' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'fun' and meter['sleeping'] == False:
+                meter[key] += 4
+
+            if key == 'social' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'social' and meter['sleeping'] == False:
+                meter[key] += 4
+
 
 # ---------------------------------------------------------------------
 
