@@ -73,3 +73,32 @@ def sleeping(state):
         state["petMeters"]["energy"] = 0
     print("{} is sleeping.".format(state["petName"]))
     return True
+
+def dog_shaking(state):
+    print("{} is feeling uncomfortable and shaking their body.".format(state["petName"]))
+    return True
+
+def bark_for_food(state):
+    print("{} is barking in front of the food bowl.".format(state["petName"]))
+    return False
+
+def dog_proper_relief(state):
+    print("{} is reliefing in the back yard.".format(state["petName"]))
+    state["petMeters"]["bladder"] = 0
+    return True
+
+def running_around(state)
+    print("{} is running around the house.".format(state["petName"]))
+    state["petMeters"]["fun"] -= 20
+    if state["petMeters"]["fun"] < 0:
+        state["petMeters"]["fun"] = 0
+    state["petMeters"]["energy"] += 15
+    if state["petMeters"]["energy"] > 100:
+        state["petMeters"]["energy"] = 100
+
+def barking(state)
+    state["petMeters"]["social"] -= 40
+    if state["petMeters"]["social"] < 0:
+        state["petMeters"]["social"] = 0
+    print("{} is barking at you.".format(state["petName"]))
+    return True
