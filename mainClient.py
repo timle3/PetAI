@@ -25,13 +25,14 @@ if __name__ == "__main__":
     petBT = pet.create_behavior_tree()
     gamestate = {
         "petMeters" : pet.meter,
-        "petItems": pet.item
+        "petItems": pet.item,
+        "petName": pet.name
     }
 
     while(True):
         petBT.execute(gamestate)
         pet.actions(gamestate, petBT)
         print()
-        print(gamestate["petMeters"])
-        print(gamestate["petItems"])
+        # print(gamestate["petMeters"])
+        # print(gamestate["petItems"])
         pet.increase_meter(pet.meter)

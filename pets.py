@@ -55,7 +55,14 @@ class Cat(Pet):
                 state["petItems"]["litter_box"] = 100
                 print("Litter box has been cleaned.")
             elif choice == 3:
-                print(choice)
+                if state["petMeters"]["ready_to_play"]:
+                    state["petMeters"]["social"] -= 35
+                    state["petMeters"]["fun"] -= 30
+                    if state["petMeters"]["fun"] < 0:
+                        state["petMeters"]["fun"] = 0
+                    print("You play with the cat.")
+                else:
+                    print("The cat ran away when you tried to play with it!")
             elif choice == 4:
                 pass
             elif choice == 5:
@@ -131,11 +138,11 @@ class Cat(Pet):
         social.child_nodes = [meow_action]
 
         # Sleep Branch
-        energy = Sequence(name='energy')
+        energy = Sequence(name='Energy')
         go_to_sleep_action = Action(go_to_sleep)
         energy.child_nodes = [go_to_sleep_action]
 
-        sleep = Sequence(name='sleep')
+        sleep = Sequence(name='Sleep')
         sleeping_action = Action(sleeping)
         sleep.child_nodes = [sleeping_action]
 
