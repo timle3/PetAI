@@ -10,3 +10,9 @@ def social_meter(state):
 
 def check_box(state):
     return state["petItems"]["litter_box"] > 0
+
+def dog_check_hygiene(state):
+    return state["petMeters"]["hygiene"] > 70
+
+def check_door(state)
+    return state["petItems"]["door_opened"]

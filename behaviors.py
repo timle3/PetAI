@@ -38,7 +38,7 @@ def play_alone(state):
     state["petMeters"]["energy"] += 15
     if state["petMeters"]["energy"] > 100:
         state["petMeters"]["energy"] = 100
-    print("Cat is meowing to you.")
+    print("Cat is playing itself.")
     return True
 
 def box_relief(state):
@@ -52,7 +52,7 @@ def box_relief(state):
 def improper_relief(state):
     state["petMeters"]["bladder"] = 0
     state["petItems"]["shit_on_floor"] += 1
-    print("Cat is reliefing on the floor.")
+    print("The pet is reliefing on the floor.")
     return True
 	
 def clean_self(state):
@@ -72,4 +72,33 @@ def sleeping(state):
     if state["petMeters"]["energy"] < 0:
         state["petMeters"]["energy"] = 0
     print("Cat is sleeping.")
+    return True
+
+def dog_shaking(state):
+    print("Dog is feeling uncomfortable and shaking its body.")
+    return True
+
+def bark_for_food(state):
+    print("The dog is barking in front of the food bowl.")
+    return False
+
+def dog_proper_relief(state):
+    print("The dog is reliefing in the back yard.")
+    state["petMeters"]["bladder"] = 0
+    return True
+
+def running_around(state)
+    print("The dog is running around the house.")
+    state["petMeters"]["fun"] -= 20
+    if state["petMeters"]["fun"] < 0:
+        state["petMeters"]["fun"] = 0
+    state["petMeters"]["energy"] += 15
+    if state["petMeters"]["energy"] > 100:
+        state["petMeters"]["energy"] = 100
+
+def barking(state)
+    state["petMeters"]["social"] -= 40
+    if state["petMeters"]["social"] < 0:
+        state["petMeters"]["social"] = 0
+    print("Dog is barking to you.")
     return True
