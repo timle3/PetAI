@@ -22,5 +22,5 @@ def check_bladder(state):
 
 # For dogs/cats, are they feeling dirty?
 # For the fish, is the tank clean?
-def pet_feeling_clean():
+def pet_feeling_clean(state):
     return state["petMeters"]["hygiene"] > 50

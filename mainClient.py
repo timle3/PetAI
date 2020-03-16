@@ -30,9 +30,9 @@ if __name__ == "__main__":
     }
 
     while(True):
+        print(gamestate["petMeters"])
+        print(gamestate["petItems"])
         petBT.execute(gamestate)
         pet.actions(gamestate, petBT)
         print()
-        # print(gamestate["petMeters"])
-        # print(gamestate["petItems"])
         pet.increase_meter(pet.meter)

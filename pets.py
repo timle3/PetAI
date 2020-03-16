@@ -43,6 +43,7 @@ class Dog(Pet):
         print("5. Sleep")
         print("6. Check items")
         print("7. Clean mess")
+        print("8. Give a bath")
         print()
         try:
             choice = int(input("Enter the number of the action you want to do: "))
@@ -51,17 +52,20 @@ class Dog(Pet):
                 state["petItems"]["food_bowl"] = 100
                 print("Food bowl has been filled.")
             elif choice == 2:
-                state["petItems"]["litter_box"] = 100
-                print("Litter box has been cleaned.")
-            elif choice == 3:
-                if state["petMeters"]["ready_to_play"]:
-                    state["petMeters"]["social"] -= 35
-                    state["petMeters"]["fun"] -= 30
-                    if state["petMeters"]["fun"] < 0:
-                        state["petMeters"]["fun"] = 0
-                    print("You play with the cat.")
+                if state["petItems"]["door_opened"]:
+                    state["petItems"]["door_opened"] = False
+                    print("You close the door")
                 else:
-                    print("The cat ran away when you tried to play with it!")
+                    state["petItems"]["door_opened"] = True
+                    print("You open the door")
+            elif choice == 3:
+                state["petMeters"]["fun"] -= 20
+                if state["petMeters"]["fun"]: 
+                    state["petMeters"]["fun"] = 0
+                state["petMeters"]["social"] -= 10
+                if state["petMeters"]["social"] < 0:
+                    state["petMeters"]["social"] = 0
+                print("You play with {}".format(state["petName"]))
             elif choice == 4:
                 pass
             elif choice == 5:
@@ -70,22 +74,29 @@ class Dog(Pet):
                     bt.execute(state)
             elif choice == 6:
                 print("Food bowl is {}% filled".format(state["petItems"]["food_bowl"]))
-                print("Litter box is {}% clean".format(state["petItems"]["litter_box"]))
-            elif choice == 7 and state["petItems"]["shit_on_floor"] == True:
-                print("The floor is now clean.")
-            elif choice == 7 and state["petItems"]["shit_on_floor"] == False:
-                print("There is no mess to clean!")
+                print("Door is {}".format("Open" if state["petItems"]["door_opened"] else "Closed"))
+                if state["petItems"]["shit_on_floor"]:
+                    print("There's a mess on the floor...")
+            elif choice == 7:
+                if state["petItems"]["shit_on_floor"]:
+                    state["petItems"]["shit_on_floor"] = False
+                    print("The floor is now clean.")
+                else: 
+                    print("There is no mess to clean!")
+            elif choice == 8:
+                state["petMeters"]["hygiene"] = 0
+                print("You give {} a bath".format(state["petName"]))
             else:
                 raise ValueError("Invalid Choice")
         except ValueError as e:
             print("Input is not a choice. Please select a valid choice.")
             self.actions(state, bt)
 
-
     def create_behavior_tree(self):
         # Root node for cat
         root = Selector(name='Dog Behaviors')
 
+        # Hygiene branch
         hygiene_sequence = Sequence(name='dog hygiene sequence')
         check_hygiene = Check(dog_check_hygiene)
         shaking = Action(dog_shaking)
@@ -93,20 +104,22 @@ class Dog(Pet):
 
         dog_priority_selector = DogSelector(name='Dog Priority')
 
+        # Hunger branch
         hunger = Sequence(name='Hunger')
         bowl_selector = Selector(name = 'bowl selector')
         check_bowl = Check(if_bowl_full)
         bark_for_food_action = Action(bark_for_food)
-        bowl_selector.child_nodes = [check_bowl, bark_for_food]
+        bowl_selector.child_nodes = [check_bowl, bark_for_food_action]
         eating = Action(eat)
         hunger.child_nodes = [bowl_selector, eating]
 
+        # Bladder branch
         bladder = Sequence(name='Bladder')
-        improper_relief_selector = Selector(name= 'improper relief selector')
+        improper_relief_selector = Selector(name='improper relief selector')
         check_door_opened = Check(check_door)
-        improper_relief_always_false = AlwaysFalse(name = 'improper relief always false')
-        improper_relief_always_false_selector = Selector(name = 'improper relief always false selector')
-        bark_at_door_sequence = Sequence(name = 'bark at door sequence')
+        improper_relief_always_false = AlwaysFalse(name='improper relief always false')
+        improper_relief_always_false_selector = Selector(name='improper relief always false selector')
+        bark_at_door_sequence = Sequence(name='bark at door sequence')
         check_bladder_full = Check(check_bladder)
         bark_at_door_action = Action(bark_at_door)
         improper_relief_action = Action(improper_relief)
@@ -117,25 +130,28 @@ class Dog(Pet):
         dog_proper_relief_action = Action(dog_proper_relief)
         bladder.child_nodes = [improper_relief_selector, dog_proper_relief_action]
 
+        # Fun branch
         fun = Sequence(name='Fun')
         running_around_action = Action(running_around)
         fun.child_nodes = [running_around_action]
 
+        # Social branch
         social = Sequence(name='Social')
         barking_action = Action(barking)
         social.child_nodes = [barking_action]
 
+        # Energy branch
         energy = Sequence(name='Energy')
         go_to_sleep_action = Action(go_to_sleep)
         energy.child_nodes = [go_to_sleep_action]
 
+        # Sleep branch
         sleep = Sequence(name='Sleep')
         sleeping_action = Action(sleeping)
         sleep.child_nodes = [sleeping_action]
 
         dog_priority_selector.child_nodes = [hunger, bladder, fun, social, energy, sleep]
         root.child_nodes = [hygiene_sequence, dog_priority_selector]
-        logging.info('\n' + root.tree_to_string())
 
         return root
 
@@ -291,7 +307,6 @@ class Cat(Pet):
         cat_priority_selector = CatSelector(name='Cat Priority')
 
         # Hunger Branch
-
         hunger = Sequence(name='Hunger')
 
         bowl_checker = Selector(name='Bowl Checker')
@@ -348,42 +363,7 @@ class Cat(Pet):
         cat_priority_selector.child_nodes = [hunger, fun, social, bladder, energy, hygiene, sleep]
         root.child_nodes = [turn_play_off, cat_priority_selector]
 
-        logging.info('\n' + root.tree_to_string())
         return root
-
-        # Increment fish meters over time to represent realistic needs of a fish
-    def increase_meter(self, meter):
-        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
-        for key, val in meter.items():
-            if key == 'hunger' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hunger' and meter['sleeping'] == False:
-                meter[key] += 6
-
-            if key == 'energy' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'energy' and meter['sleeping'] == False:
-                meter[key] += 2
-
-            if key == 'hygiene' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hygiene' and meter['sleeping'] == False:
-                meter[key] += 3
-
-            if key == 'bladder' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'bladder' and meter['sleeping'] == False:
-                meter[key] += 6
-
-            if key == 'fun' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'fun' and meter['sleeping'] == False:
-                meter[key] += 4
-
-            if key == 'social' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'social' and meter['sleeping'] == False:
-                meter[key] += 4
 
 
 
@@ -407,19 +387,18 @@ class Fish:
 
         # Root node for fish
         root = Sequence(name='Fish behaviors')
-        root.child_nodes = [hunger, hygiene, sleep, default]
 
         # Hunger branch
         hunger = Sequence(name='Hunger')
 
         bowl_checker = Sequence(name='Bowl Checker')
         check_food = Check(if_bowl_full)
-        swim = Action(swim)
+        swim_action = Action(swim)
 
-        eat = Action(eat)
+        eat_action = Action(eat)
 
-        hunger.child_nodes = [bowl_checker, eat]
-        bowl_checker.child_nodes = [check_food, swim]
+        hunger.child_nodes = [bowl_checker, eat_action]
+        bowl_checker.child_nodes = [check_food, swim_action]
 
 
         # Hygiene branch
@@ -427,10 +406,10 @@ class Fish:
 
         clean_tank = Sequence(name='Clean Tank')
         clean_tank_check = Check(if_bowl_clean)
-        swim_sideways = Action(swim_sideways)
+        swim_sideways_action = Action(swim_sideways)
 
         hygiene.child_nodes = [clean_tank]
-        clean_tank.child_nodes = [clean_tank_check, swim_sideways]
+        clean_tank.child_nodes = [clean_tank_check, swim_sideways_action]
 
         # Sleep branch
         sleep = Sequence(name='Sleep')
@@ -441,6 +420,7 @@ class Fish:
 
         # Default/idle
         default = Action(swim)
+        root.child_nodes = [hunger, hygiene, sleep, default]
 
 
     # Increment fish meters over time to represent realistic needs of a fish
