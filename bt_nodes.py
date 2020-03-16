@@ -71,7 +71,7 @@ class DogSelector(Composite):
         if temp > highest_priority:
             highest_priority = temp
             code = "Social"
-
+        print(code)
         if state["petMeters"]["sleeping"] and (highest_priority < 35 or code == "Energy") :
             for child_node in self.child_nodes:
                 if child_node.name == "Sleep":

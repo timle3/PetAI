@@ -84,26 +84,24 @@ class Dog(Pet):
 
     def create_behavior_tree(self):
         # Root node for cat
-        root = Sequence(name='Dog Behaviors')
+        root = Selector(name='Dog Behaviors')
 
-        hygiene_always_false = AlwaysFalse(name='dog hygiene always false')
         hygiene_sequence = Sequence(name='dog hygiene sequence')
         check_hygiene = Check(dog_check_hygiene)
         shaking = Action(dog_shaking)
         hygiene_sequence.child_nodes = [check_hygiene, shaking]
-        hygiene_always_false.child_node = [hygiene_sequence]
 
         dog_priority_selector = DogSelector(name='Dog Priority')
 
-        hunger = Sequence(name='hunger')
+        hunger = Sequence(name='Hunger')
         bowl_selector = Selector(name = 'bowl selector')
         check_bowl = Check(if_bowl_full)
         bark_for_food_action = Action(bark_for_food)
-        bowl_selector.child_node = [check_bowl, bark_for_food]
+        bowl_selector.child_nodes = [check_bowl, bark_for_food]
         eating = Action(eat)
-        hunger.child_node = [bowl_selector, eating]
+        hunger.child_nodes = [bowl_selector, eating]
 
-        bladder = Sequence(name='bladder')
+        bladder = Sequence(name='Bladder')
         improper_relief_selector = Selector(name= 'improper relief selector')
         check_door_opened = Check(check_door)
         improper_relief_always_false = AlwaysFalse(name = 'improper relief always false')
@@ -112,35 +110,33 @@ class Dog(Pet):
         check_bladder_full = Check(check_bladder)
         bark_at_door_action = Action(bark_at_door)
         improper_relief_action = Action(improper_relief)
-        bark_at_door_sequence.child_node = [check_bladder_full, bark_at_door_action]
-        improper_relief_always_false_selector.child_node = [bark_at_door_sequence, improper_relief_action]
-        improper_relief_always_false.child_node = [improper_relief_always_false_selector]
-        improper_relief_selector.child_node = [check_door_opened, improper_relief_always_false]
+        bark_at_door_sequence.child_nodes = [check_bladder_full, bark_at_door_action]
+        improper_relief_always_false_selector.child_nodes = [bark_at_door_sequence, improper_relief_action]
+        improper_relief_always_false.child_nodes = [improper_relief_always_false_selector]
+        improper_relief_selector.child_nodes = [check_door_opened, improper_relief_always_false]
         dog_proper_relief_action = Action(dog_proper_relief)
-        bladder.child_node = [improper_relief_selector, dog_proper_relief_action]
-        
-        improper_relief_selector.child_node = [check_door, improper_relief_always_false]
-        dog_proper_relief = Action(dog_proper_relief)
-        bladder.child_node = [improper_relief_selector, dog_proper_relief]
+        bladder.child_nodes = [improper_relief_selector, dog_proper_relief_action]
 
-        fun = Sequence(name='fun')
+        fun = Sequence(name='Fun')
         running_around_action = Action(running_around)
-        fun.child_node = [running_around_action]
+        fun.child_nodes = [running_around_action]
 
-        social = Sequence(name='social')
+        social = Sequence(name='Social')
         barking_action = Action(barking)
-        social.child_node = [barking_action]
+        social.child_nodes = [barking_action]
 
-        energy = Sequence(name='energy')
+        energy = Sequence(name='Energy')
         go_to_sleep_action = Action(go_to_sleep)
         energy.child_nodes = [go_to_sleep_action]
 
-        sleep = Sequence(name='sleep')
+        sleep = Sequence(name='Sleep')
         sleeping_action = Action(sleeping)
         sleep.child_nodes = [sleeping_action]
 
-        dog_priority_selector.child_node = [hunger, bladder, fun, social, energy, sleep]
-        root.child_node = [hygiene_always_false, dog_priority_selector]
+        dog_priority_selector.child_nodes = [hunger, bladder, fun, social, energy, sleep]
+        root.child_nodes = [hygiene_sequence, dog_priority_selector]
+        logging.info('\n' + root.tree_to_string())
+
         return root
 
     # Increment dog meters over time to represent realistic needs of a dog

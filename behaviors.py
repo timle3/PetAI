@@ -76,7 +76,7 @@ def sleeping(state):
 
 def dog_shaking(state):
     print("{} is feeling uncomfortable and shaking their body.".format(state["petName"]))
-    return True
+    return False
 
 def bark_for_food(state):
     print("{} is barking in front of the food bowl.".format(state["petName"]))
