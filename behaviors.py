@@ -110,6 +110,10 @@ def swim(state):
     print("{} is swimming around and seems to be doing alright.".format(state["petName"]))
     return True
 
+def swim_slowly(state):
+    print("{} is swimming more slowly than usual and seems to be out of energy.".format(state["petName"]))
+    return True
+
 def swim_sideways(state):
     print("{} is swimming sideways in the tank.".format(state["petName"]))
     return True
