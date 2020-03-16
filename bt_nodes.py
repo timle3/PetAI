@@ -72,7 +72,7 @@ class DogSelector(Composite):
             highest_priority = temp
             code = "Social"
 
-        if state["petMeters"]["sleeping"] and highest_priority < 35 :
+        if state["petMeters"]["sleeping"] and (highest_priority < 35 or code == "Energy") :
             for child_node in self.child_nodes:
                 if child_node.name == "Sleep":
                     return child_node.execute(state)
@@ -115,7 +115,7 @@ class CatSelector(Composite):
             highest_priority = temp
             code = "Social"
 
-        if state["petMeters"]["sleeping"] and highest_priority < 35 :
+        if state["petMeters"]["sleeping"] and (highest_priority < 35 or code == "Energy"):
             for child_node in self.child_nodes:
                 if child_node.name == "Sleep":
                     return child_node.execute(state)
