@@ -60,7 +60,7 @@ class Dog(Pet):
                     print("You open the door")
             elif choice == 3:
                 state["petMeters"]["fun"] -= 20
-                if state["petMeters"]["fun"]: 
+                if state["petMeters"]["fun"]:
                     state["petMeters"]["fun"] = 0
                 state["petMeters"]["social"] -= 10
                 if state["petMeters"]["social"] < 0:
@@ -81,7 +81,7 @@ class Dog(Pet):
                 if state["petItems"]["shit_on_floor"]:
                     state["petItems"]["shit_on_floor"] = False
                     print("The floor is now clean.")
-                else: 
+                else:
                     print("There is no mess to clean!")
             elif choice == 8:
                 state["petMeters"]["hygiene"] = 0
@@ -382,19 +382,20 @@ class Cat(Pet):
 
 class Fish:
     def __init__(self, name=None):
-        self.bt_root = Selector(name='What the fish do')
+        self.name = name
         self.meter = {
             "hunger": 0,
             "energy": 0,
-            "bladder": 0,
-            "fun": 60,
-            "hygiene": 0,
-            "social": 36,
+            "bladder": 0, # abstracted away for time's sake
+            "fun": 60, # unused
+            "hygiene": 0, # updated but unused
+            "social": 36, # unused
             "sleeping": False,
-            "ready_to_play": False
+            "ready_to_play": False # unused
         }
         self.item = {
-            "fish_tank_cleanliness": 20, # Not used yet
+            "food_in_tank": 0,
+            "tank_cleanliness": 20
         }
 
 
@@ -403,21 +404,21 @@ class Fish:
         # Hunger branch
         hunger = Sequence(name='Hunger')
 
-        tank_checker = Sequence(name='Tank Checker')
-        check_food = Check(if_bowl_full)
+        tank_food_checker = Sequence(name='Tank Checker')
+        check_food = Check(food_in_tank)
         swim_action = Action(swim)
 
-        eat_action = Action(eat)
+        eat_action = Action(fish_eat)
 
-        hunger.child_nodes = [bowl_checker, eat_action]
-        bowl_checker.child_nodes = [check_food, swim_action]
+        hunger.child_nodes = [tank_food_checker, eat_action]
+        tank_food_checker.child_nodes = [check_food, swim_action]
 
 
         # Hygiene branch
         hygiene = Sequence(name='Hygiene')
 
         clean_tank = Sequence(name='Clean Tank')
-        clean_tank_check = Check(if_bowl_clean)
+        clean_tank_check = Check(if_tank_clean)
         swim_sideways_action = Action(swim_sideways)
 
         hygiene.child_nodes = [clean_tank]
@@ -426,7 +427,7 @@ class Fish:
         # Sleep branch
         sleep = Sequence(name='Sleep')
 
-        tired_check = Check(if_tired)
+        tired_check = Check(is_tired)
         go_to_sleep = Action(sleeping)
         sleep.child_nodes = [tired_check, go_to_sleep]
 
@@ -437,10 +438,49 @@ class Fish:
         root = Sequence(name='Fish behaviors')
         root.child_nodes = [hunger, hygiene, sleep, default]
 
+        return root
+
+    # Available actions for the owner (player) to do
+    def actions(self, state, bt):
+        print("Available Actions")
+        print("1. Feed")
+        print("2. Clean tank")
+        print("3. Do nothing")
+        print("4. Sleep")
+        print("5. Check items")
+        print()
+        try:
+            choice = int(input("Enter the number of the action you want to do: "))
+            print()
+            if choice == 1:
+                state["petItems"]["food_in_tank"] += 5
+                print("You added some food to {}'s tank and {} is eyeing it hungrily.".format(state["petName"], state["petName"]))
+            elif choice == 2:
+                state["petMeters"]["hygiene"] = max(state["petMeters"]["hygiene"]-30, 0)
+                state["petItems"]["tank_cleanliness"] += 20 + random.randint(0, 5)
+                print("You cleaned {}'s tank.".format(state["petName"]))
+            elif choice == 3:
+                pass
+            elif choice == 4:
+                for _ in range(random.randint(37, 57)):
+                    self.increase_meter(state["petMeters"])
+                    bt.execute(state)
+            elif choice == 5:
+                print("Food in tank : {}".format(state["petItems"]["food_in_tank"]))
+                print("Tank cleanliness : {}".format(state["petItems"]["tank_cleanliness"]))
+            else:
+                raise ValueError("Invalid Choice")
+        except ValueError as e:
+            print("Input is not a choice. Please select a valid choice.")
+            self.actions(state, bt)
 
     # Increment fish meters over time to represent realistic needs of a fish
     def increase_meter(self, meter):
-        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
+        numMeter = ["hunger", "energy", "fun", "hygiene", "social"]
+
+        if random.randint(1, 10) == 10:
+            self.item['tank_cleanliness'] = max(self.item['tank_cleanliness']-1, 0)
+
         for key, val in meter.items():
             if key == 'hunger' and meter['sleeping'] == True:
                 meter[key] += 3
@@ -456,11 +496,6 @@ class Fish:
                 meter[key] += 3
             if key == 'hygiene' and meter['sleeping'] == False:
                 meter[key] += 3
-
-            if key == 'bladder' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'bladder' and meter['sleeping'] == False:
-                meter[key] += 6
 
             if key == 'fun' and meter['sleeping'] == True:
                 meter[key] += 0

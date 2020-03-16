@@ -20,7 +20,7 @@ if __name__ == "__main__":
     name = input()
     pet = eval(petList[index])(name)
     print()
-    
+
     # Pet initialized, behaviors will now start and react to owner actions
     petBT = pet.create_behavior_tree()
     gamestate = {
@@ -29,10 +29,13 @@ if __name__ == "__main__":
         "petName": pet.name
     }
 
-    while(True):
-        print(gamestate["petMeters"])
-        print(gamestate["petItems"])
-        petBT.execute(gamestate)
-        pet.actions(gamestate, petBT)
-        print()
-        pet.increase_meter(pet.meter)
+    try:
+        while(True):
+            print(gamestate["petMeters"])
+            print(gamestate["petItems"])
+            petBT.execute(gamestate)
+            pet.actions(gamestate, petBT)
+            print()
+            pet.increase_meter(pet.meter)
+    except KeyboardInterrupt:
+        print('\nKeyboard interrupt recieved, exiting')

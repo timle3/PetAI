@@ -20,7 +20,16 @@ def check_door(state):
 def check_bladder(state):
 	return state["petMeters"]["bladder"] == 100
 
+def is_tired(state):
+    return state["petMeters"]["energy"] < 30
+
 # For dogs/cats, are they feeling dirty?
 # For the fish, is the tank clean?
 def pet_feeling_clean(state):
     return state["petMeters"]["hygiene"] > 50
+
+def food_in_tank(state):
+    return state["petItems"]["food_in_tank"] > 0
+
+def if_tank_clean(state):
+    return state["petItems"]["tank_cleanliness"] > 10

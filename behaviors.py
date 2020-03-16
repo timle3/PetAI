@@ -20,6 +20,11 @@ def eat(state):
     print("{} is eating food from the food bowl.".format(state["petName"]))
     return True
 
+def fish_eat(state):
+    state["petItems"]["food_in_tank"] -= 1
+    print("{} is eating some fish food.".format(state["petName"]))
+    return True
+
 def meow(state):
     state["petMeters"]["social"] -= 5
     if state["petMeters"]["social"] < 0:
