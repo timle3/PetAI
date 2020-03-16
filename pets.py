@@ -118,7 +118,7 @@ class Dog(Pet):
         improper_relief_selector.child_node = [check_door_opened, improper_relief_always_false]
         dog_proper_relief_action = Action(dog_proper_relief)
         bladder.child_node = [improper_relief_selector, dog_proper_relief_action]
-        
+
         improper_relief_selector.child_node = [check_door, improper_relief_always_false]
         dog_proper_relief = Action(dog_proper_relief)
         bladder.child_node = [improper_relief_selector, dog_proper_relief]
@@ -405,25 +405,36 @@ class Cat(Pet):
 # | Action: "Idle": swim around normally
 
 class Fish:
-    def __init__(self):
+    def __init__(self, name=None):
         self.bt_root = Selector(name='What the fish do')
-        # Set up the other stuff to reflect the logic above
+        self.meter = {
+            "hunger": 0,
+            "energy": 0,
+            "bladder": 0,
+            "fun": 60,
+            "hygiene": 0,
+            "social": 36,
+            "sleeping": False,
+            "ready_to_play": False
+        }
+        self.item = {
+            "fish_tank_cleanliness": 20, # Not used yet
+        }
 
-        # Root node for fish
-        root = Sequence(name='Fish behaviors')
-        root.child_nodes = [hunger, hygiene, sleep, default]
 
+
+    # Set up the other stuff to reflect the logic in the comment above
+    def create_behavior_tree(self):
         # Hunger branch
         hunger = Sequence(name='Hunger')
 
-        bowl_checker = Sequence(name='Bowl Checker')
+        tank_checker = Sequence(name='Tank Checker')
         check_food = Check(if_bowl_full)
-        swim = Action(swim)
-
+        swim = Action(swim_slowly)
         eat = Action(eat)
 
-        hunger.child_nodes = [bowl_checker, eat]
-        bowl_checker.child_nodes = [check_food, swim]
+        hunger.child_nodes = [tank_checker, eat]
+        bowl_checker.child_nodes = [check_food, swim_slowly]
 
 
         # Hygiene branch
@@ -445,6 +456,10 @@ class Fish:
 
         # Default/idle
         default = Action(swim)
+
+        # Root node for fish
+        root = Sequence(name='Fish behaviors')
+        root.child_nodes = [hunger, hygiene, sleep, default]
 
 
     # Increment fish meters over time to represent realistic needs of a fish
