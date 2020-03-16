@@ -54,7 +54,7 @@ def improper_relief(state):
     state["petItems"]["shit_on_floor"] = True
     print("{} is relieving on the floor.".format(state["petName"]))
     return True
-	
+
 def clean_self(state):
     state["petMeters"]["hygiene"] -= 25
     if state["petMeters"]["hygiene"] < 0:
@@ -105,4 +105,11 @@ def barking(state):
     if state["petMeters"]["social"] < 0:
         state["petMeters"]["social"] = 0
     print("{} is barking at you.".format(state["petName"]))
+
+def swim(state):
+    print("{} is swimming around and seems to be doing alright.".format(state["petName"]))
+    return True
+
+def swim_sideways(state):
+    print("{} is swimming sideways in the tank.".format(state["petName"]))
     return True

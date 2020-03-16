@@ -12,7 +12,7 @@ class Pet:
 
 
 class Dog(Pet):
-    
+
     def __init__(self, name=None):
         self.name = name
         self.meter = {
@@ -119,6 +119,10 @@ class Dog(Pet):
         dog_proper_relief_action = Action(dog_proper_relief)
         bladder.child_node = [improper_relief_selector, dog_proper_relief_action]
         
+        improper_relief_selector.child_node = [check_door, improper_relief_always_false]
+        dog_proper_relief = Action(dog_proper_relief)
+        bladder.child_node = [improper_relief_selector, dog_proper_relief]
+
         fun = Sequence(name='fun')
         running_around_action = Action(running_around)
         fun.child_node = [running_around_action]
@@ -347,21 +351,58 @@ class Cat(Pet):
         # Root Children
         cat_priority_selector.child_nodes = [hunger, fun, social, bladder, energy, hygiene, sleep]
         root.child_nodes = [turn_play_off, cat_priority_selector]
-        
+
         logging.info('\n' + root.tree_to_string())
         return root
+
+        # Increment fish meters over time to represent realistic needs of a fish
+    def increase_meter(self, meter):
+        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
+        for key, val in meter.items():
+            if key == 'hunger' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hunger' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'energy' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'energy' and meter['sleeping'] == False:
+                meter[key] += 2
+
+            if key == 'hygiene' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'hygiene' and meter['sleeping'] == False:
+                meter[key] += 3
+
+            if key == 'bladder' and meter['sleeping'] == True:
+                meter[key] += 3
+            if key == 'bladder' and meter['sleeping'] == False:
+                meter[key] += 6
+
+            if key == 'fun' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'fun' and meter['sleeping'] == False:
+                meter[key] += 4
+
+            if key == 'social' and meter['sleeping'] == True:
+                meter[key] += 0
+            if key == 'social' and meter['sleeping'] == False:
+                meter[key] += 4
+
+
 
 # Fish info
 # Selector: What the fish do
 # | Sequence: Ensure the fish is fed
-# | | Check: if the tanks is clean
-# | | Check: if a human is nearby
-# | | Check: if I'm not already swimming slowly
+# | | Check: if I'm hungry
 # | | Action: swim slowly
 # | Sequence: Ensure the tank is clean
 # | | Check: if the tank is clean
-# | | Check: if_not_swimming_sideways
 # | | Action: swim_sideways
+# | Sequence: Sleep if tired
+# | | Check: if the fish is tired
+# | | Action: sleep
+# | Action: "Idle": swim around normally
 
 class Fish:
     def __init__(self):
@@ -370,7 +411,7 @@ class Fish:
 
         # Root node for fish
         root = Sequence(name='Fish behaviors')
-        root.child_nodes = [hunger, hygiene, sleep]
+        root.child_nodes = [hunger, hygiene, sleep, default]
 
         # Hunger branch
         hunger = Sequence(name='Hunger')
@@ -388,13 +429,12 @@ class Fish:
         # Hygiene branch
         hygiene = Sequence(name='Hygiene')
 
-        clean_bowl = Sequence(name='Clean Bowl')
-        clean_bowl_check = Check(if_bowl_clean)
-        if_not_swimming_sideways = Check(if_not_swimming_sideways)
+        clean_tank = Sequence(name='Clean Tank')
+        clean_tank_check = Check(if_bowl_clean)
         swim_sideways = Action(swim_sideways)
 
-        hygiene.child_nodes = [clean_bowl]
-        clean_bowl.child_nodes = [clean_bowl_check, if_not_swimming_sideways, swim_sideways]
+        hygiene.child_nodes = [clean_tank]
+        clean_tank.child_nodes = [clean_tank_check, swim_sideways]
 
         # Sleep branch
         sleep = Sequence(name='Sleep')
@@ -402,6 +442,9 @@ class Fish:
         tired_check = Check(if_tired)
         go_to_sleep = Action(sleeping)
         sleep.child_nodes = [tired_check, go_to_sleep]
+
+        # Default/idle
+        default = Action(swim)
 
 
     # Increment fish meters over time to represent realistic needs of a fish
