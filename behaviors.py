@@ -46,13 +46,13 @@ def box_relief(state):
     state["petItems"]["litter_box"] -= 30
     if state["petItems"]["litter_box"] < 0:
         state["petItems"]["litter_box"] = 0
-    print("{} is reliefing in the litter box.".format(state["petName"]))
+    print("{} is relieving in the litter box.".format(state["petName"]))
     return True
 
 def improper_relief(state):
     state["petMeters"]["bladder"] = 0
-    state["petItems"]["shit_on_floor"] += 1
-    print("{} is reliefing on the floor.".format(state["petName"]))
+    state["petItems"]["shit_on_floor"] = True
+    print("{} is relieving on the floor.".format(state["petName"]))
     return True
 	
 def clean_self(state):
@@ -82,12 +82,16 @@ def bark_for_food(state):
     print("{} is barking in front of the food bowl.".format(state["petName"]))
     return False
 
+def bark_at_door(state):
+    print("{} is barking at the door.".format(state["petName"]))
+    return True
+
 def dog_proper_relief(state):
-    print("{} is reliefing in the back yard.".format(state["petName"]))
+    print("{} is relieving in the back yard.".format(state["petName"]))
     state["petMeters"]["bladder"] = 0
     return True
 
-def running_around(state)
+def running_around(state):
     print("{} is running around the house.".format(state["petName"]))
     state["petMeters"]["fun"] -= 20
     if state["petMeters"]["fun"] < 0:
@@ -96,7 +100,7 @@ def running_around(state)
     if state["petMeters"]["energy"] > 100:
         state["petMeters"]["energy"] = 100
 
-def barking(state)
+def barking(state):
     state["petMeters"]["social"] -= 40
     if state["petMeters"]["social"] < 0:
         state["petMeters"]["social"] = 0

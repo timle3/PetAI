@@ -46,13 +46,51 @@ class Composite(Node):
 
 
 ############################### Composite Nodes ##################################
+class DogSelector(Composite):
+    @log_execution
+    def execute(self, state):
+        highest_priority = ((state["petMeters"]["hunger"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
+        code = "Hunger"
+
+        temp = ((state["petMeters"]["energy"] ** 2) / 320) + (state["petMeters"]["energy"] / 3)
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Energy"
+
+        temp = 500 * (math.cos((state["petMeters"]["bladder"] - 100) / 100)) ** 1000
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Bladder"
+
+        temp = state["petMeters"]["fun"] / 2
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Fun"
+
+        temp = state["petMeters"]["social"] / 2
+        if temp > highest_priority:
+            highest_priority = temp
+            code = "Social"
+
+        if state["petMeters"]["sleeping"] and highest_priority < 35 :
+            for child_node in self.child_nodes:
+                if child_node.name == "Sleep":
+                    return child_node.execute(state)
+
+        else:
+            state["petMeters"]["sleeping"] = False
+            for child_node in self.child_nodes:
+                if child_node.name == code:
+                    return child_node.execute(state)
+
+
 class CatSelector(Composite):
     @log_execution
     def execute(self, state):
         highest_priority = ((state["petMeters"]["hunger"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
         code = "Hunger"
 
-        temp = ((state["petMeters"]["energy"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
+        temp = ((state["petMeters"]["energy"] ** 2) / 320) + (state["petMeters"]["energy"] / 3)
         if temp > highest_priority:
             highest_priority = temp
             code = "Energy"
@@ -78,15 +116,11 @@ class CatSelector(Composite):
             code = "Social"
 
         if state["petMeters"]["sleeping"] and highest_priority < 35 :
-            # print(highest_priority)
-            # print(code)
             for child_node in self.child_nodes:
                 if child_node.name == "Sleep":
                     return child_node.execute(state)
 
         else:
-            # print(highest_priority)
-            # print(code)
             state["petMeters"]["sleeping"] = False
             for child_node in self.child_nodes:
                 if child_node.name == code:
@@ -112,6 +146,20 @@ class Sequence(Composite):
                 return False
         else:  # for loop completed without failure; return success
             return True
+
+class AlwaysTrue(Composite):
+    @log_execution
+    def execute(self, state):
+        for child_node in self.child_nodes:
+            child_node.execute(state)
+        return True
+
+class AlwaysFalse(Composite):
+    @log_execution
+    def execute(self, state):
+        for child_node in self.child_nodes:
+            child_node.execute(state)
+        return False
 
 
 

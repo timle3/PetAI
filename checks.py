@@ -14,5 +14,9 @@ def check_box(state):
 def dog_check_hygiene(state):
     return state["petMeters"]["hygiene"] > 70
 
-def check_door(state)
+def check_door(state):
     return state["petItems"]["door_opened"]
+
+def check_bladder(state):
+	return state["petMeters"]["bladder"] == 100
+
