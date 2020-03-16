@@ -2,6 +2,15 @@ from bt_nodes import *
 from checks import *
 from behaviors import *
 import random
+import sys, os
+
+# Disable printing to console
+def blockPrint():
+    sys.stdout = open(os.devnull, 'w')
+
+# Restore printing to console
+def enablePrint():
+    sys.stdout = sys.__stdout__
 
 class Pet:
     def __init__(self, name=None):
@@ -10,9 +19,7 @@ class Pet:
     def execute(self, state):
         raise NotImplementedError
 
-
 class Dog(Pet):
-
     def __init__(self, name=None):
         self.name = name
         self.meter = {
@@ -38,7 +45,8 @@ class Dog(Pet):
             print("2. Close the door")
         else:
             print("2. Open the door")
-        print("3. Play with dog")
+        if not state["petMeters"]["sleeping"]:
+            print("3. Play with dog")
         print("4. Do nothing")
         print("5. Sleep")
         print("6. Check items")
@@ -58,7 +66,7 @@ class Dog(Pet):
                 else:
                     state["petItems"]["door_opened"] = True
                     print("You open the door")
-            elif choice == 3:
+            elif choice == 3 and not state["petMeters"]["sleeping"]:
                 state["petMeters"]["fun"] -= 20
                 if state["petMeters"]["fun"]:
                     state["petMeters"]["fun"] = 0
@@ -67,11 +75,13 @@ class Dog(Pet):
                     state["petMeters"]["social"] = 0
                 print("You play with {}".format(state["petName"]))
             elif choice == 4:
-                pass
+                print("You do nothing")
             elif choice == 5:
                 for _ in range(47):
+                    blockPrint()
                     self.increase_meter(state["petMeters"])
                     bt.execute(state)
+                    enablePrint()
             elif choice == 6:
                 print("Food bowl is {}% filled".format(state["petItems"]["food_bowl"]))
                 print("Door is {}".format("Open" if state["petItems"]["door_opened"] else "Closed"))
@@ -157,45 +167,38 @@ class Dog(Pet):
 
     # Increment dog meters over time to represent realistic needs of a dog
     def increase_meter(self, meter):
-        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
         for key, val in meter.items():
-            if key == 'hunger' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hunger' and meter['sleeping'] == False:
-                meter[key] += 6
+            if meter['sleeping']:
+                if key == 'hunger':
+                    meter[key] += 3
+                elif key == 'energy':
+                    meter[key] += 0
+                elif key == 'hygiene':
+                    meter[key] += 3
+                elif key == 'bladder':
+                    meter[key] += 3
+                elif key == 'fun':
+                    meter[key] += 0
+                elif key == 'social':
+                    meter[key] += 0
+            else:
+                if key == 'hunger':
+                    meter[key] += 6
+                elif key == 'energy':
+                    meter[key] += 2
+                elif key == 'hygiene':
+                    meter[key] += 3
+                elif key == 'bladder':
+                    meter[key] += 6
+                elif key == 'fun':
+                    meter[key] += 4
+                elif key == 'social':
+                    meter[key] += 4
 
-            if key == 'energy' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'energy' and meter['sleeping'] == False:
-                meter[key] += 2
-
-            if key == 'hygiene' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hygiene' and meter['sleeping'] == False:
-                meter[key] += 3
-
-            if key == 'bladder' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'bladder' and meter['sleeping'] == False:
-                meter[key] += 6
-
-            if key == 'fun' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'fun' and meter['sleeping'] == False:
-                meter[key] += 4
-
-            if key == 'social' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'social' and meter['sleeping'] == False:
-                meter[key] += 4
-
-            if meter[key] > 100:
+            if val > 100:
                 meter[key] = 100
 
-
-
 class Cat(Pet):
-
     def __init__(self, name=None):
         self.name = name
         self.meter = {
@@ -219,7 +222,8 @@ class Cat(Pet):
         print("Available Actions")
         print("1. Fill food bowl")
         print("2. Clean litter box")
-        print("3. Play with cat")
+        if not state["petMeters"]["sleeping"]:
+            print("3. Play with cat")
         print("4. Do nothing")
         print("5. Sleep")
         print("6. Check items")
@@ -234,70 +238,73 @@ class Cat(Pet):
             elif choice == 2:
                 state["petItems"]["litter_box"] = 100
                 print("Litter box has been cleaned.")
-            elif choice == 3:
+            elif choice == 3 and not state["petMeters"]["sleeping"]:
                 if state["petMeters"]["ready_to_play"]:
                     state["petMeters"]["social"] -= 35
                     state["petMeters"]["fun"] -= 30
                     if state["petMeters"]["fun"] < 0:
                         state["petMeters"]["fun"] = 0
-                    print("You play with the cat.")
+                    print("You play with {}.".format(state["petName"]))
                 else:
-                    print("The cat ran away when you tried to play with it!")
+                    print("{} ran away when you tried to play with it!".format(state["petName"]))
             elif choice == 4:
-                pass
+                print("You do nothing")
             elif choice == 5:
                 for _ in range(47):
+                    blockPrint()
                     self.increase_meter(state["petMeters"])
                     bt.execute(state)
+                    enablePrint()
             elif choice == 6:
                 print("Food bowl is {}% filled".format(state["petItems"]["food_bowl"]))
                 print("Litter box is {}% clean".format(state["petItems"]["litter_box"]))
-            elif choice == 7 and state["petItems"]["shit_on_floor"] == True:
-                print("The floor is now clean.")
-            elif choice == 7 and state["petItems"]["shit_on_floor"] == False:
-                print("There is no mess to clean!")
+                if state["petItems"]["shit_on_floor"]:
+                    print("There's a mess on the floor...")
+            elif choice == 7:
+                if state["petItems"]["shit_on_floor"]:
+                    state["petItems"]["shit_on_floor"] = False
+                    print("The floor is now clean.")
+                else:
+                    print("There is no mess to clean!")
             else:
-                raise ValueError("Invalid Choice")
+                raise ValueError()
         except ValueError as e:
             print("Input is not a choice. Please select a valid choice.")
             self.actions(state, bt)
 
     # Increment cat meters over time to represent realistic needs of a cat
     def increase_meter(self, meter):
-        numMeter = ["hunger", "energy", "bladder", "fun", "hygiene", "social"]
         for key, val in meter.items():
-            if key == 'hunger' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hunger' and meter['sleeping'] == False:
-                meter[key] += 6
-
-            if key == 'energy' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'energy' and meter['sleeping'] == False:
-                meter[key] += 2
-
-            if key == 'hygiene' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hygiene' and meter['sleeping'] == False:
-                meter[key] += 3
-
-            if key == 'bladder' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'bladder' and meter['sleeping'] == False:
-                meter[key] += 6
-
-            if key == 'fun' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'fun' and meter['sleeping'] == False:
-                meter[key] += 4
-
-            if key == 'social' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'social' and meter['sleeping'] == False:
-                meter[key] += 4
-
-            if meter[key] > 100:
+            if meter['sleeping']:
+                if key == "hunger":
+                    meter[key] += 3
+                elif key == "energy":
+                    meter[key] += 0
+                elif key == 'hygiene':
+                    meter[key] += 3
+                elif key == 'bladder':
+                    meter[key] += 3
+                elif key == 'fun':
+                    meter[key] += 0
+                elif key == 'social':
+                    meter[key] += 0
+            else:
+                if key == 'hunger':
+                    meter[key] += 6
+                elif key == 'energy':
+                    meter[key] += 2
+                elif key == 'hygiene':
+                    meter[key] += 3
+                elif key == 'bladder':
+                    meter[key] += 6
+                elif key == 'fun':
+                    meter[key] += 4
+                elif key == 'social':
+                    meter[key] += 4
+            
+            if val > 100:
                 meter[key] = 100
+
 
     def create_behavior_tree(self):
         # Root node for cat
@@ -365,8 +372,6 @@ class Cat(Pet):
 
         return root
 
-
-
 # Fish info
 # Selector: What the fish do
 # | Sequence: Ensure the fish is fed
@@ -390,8 +395,7 @@ class Fish:
             "fun": 60, # unused
             "hygiene": 0, # updated but unused
             "social": 36, # unused
-            "sleeping": False,
-            "ready_to_play": False # unused
+            "sleeping": False
         }
         self.item = {
             "food_in_tank": 0,
@@ -405,24 +409,23 @@ class Fish:
         hunger = Sequence(name='Hunger')
 
         tank_food_checker = Sequence(name='Tank Checker')
+        check_hungry = Check(is_hungry)
         check_food = Check(food_in_tank)
         swim_action = Action(swim)
+        tank_food_checker.child_nodes = [check_food, swim_action]
 
         eat_action = Action(fish_eat)
 
-        hunger.child_nodes = [tank_food_checker, eat_action]
-        tank_food_checker.child_nodes = [check_food, swim_action]
+        hunger.child_nodes = [check_hungry, tank_food_checker, eat_action]
 
 
         # Hygiene branch
         hygiene = Sequence(name='Hygiene')
 
-        clean_tank = Sequence(name='Clean Tank')
         clean_tank_check = Check(if_tank_clean)
         swim_sideways_action = Action(swim_sideways)
 
-        hygiene.child_nodes = [clean_tank]
-        clean_tank.child_nodes = [clean_tank_check, swim_sideways_action]
+        hygiene.child_nodes = [clean_tank_check, swim_sideways_action]
 
         # Sleep branch
         sleep = Sequence(name='Sleep')
@@ -435,7 +438,7 @@ class Fish:
         default = Action(swim)
 
         # Root node for fish
-        root = Sequence(name='Fish behaviors')
+        root = Selector(name='Fish behaviors')
         root.child_nodes = [hunger, hygiene, sleep, default]
 
         return root
@@ -466,8 +469,8 @@ class Fish:
                     self.increase_meter(state["petMeters"])
                     bt.execute(state)
             elif choice == 5:
-                print("Food in tank : {}".format(state["petItems"]["food_in_tank"]))
-                print("Tank cleanliness : {}".format(state["petItems"]["tank_cleanliness"]))
+                print("Food in tank: {}".format(state["petItems"]["food_in_tank"]))
+                print("Tank cleanliness: {}".format(state["petItems"]["tank_cleanliness"]))
             else:
                 raise ValueError("Invalid Choice")
         except ValueError as e:
@@ -476,37 +479,35 @@ class Fish:
 
     # Increment fish meters over time to represent realistic needs of a fish
     def increase_meter(self, meter):
-        numMeter = ["hunger", "energy", "fun", "hygiene", "social"]
-
         if random.randint(1, 10) == 10:
             self.item['tank_cleanliness'] = max(self.item['tank_cleanliness']-1, 0)
-
+        
         for key, val in meter.items():
-            if key == 'hunger' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hunger' and meter['sleeping'] == False:
-                meter[key] += 6
+            if meter['sleeping']:
+                if key == 'hunger':
+                    meter[key] += 3
+                elif key == 'energy':
+                    meter[key] += 0
+                elif key == 'hygiene':
+                    meter[key] += 3
+                elif key == 'fun':
+                    meter[key] += 0
+                elif key == 'social':
+                    meter[key] += 0
+            else:
+                if key == 'hunger':
+                    meter[key] += 6
+                elif key == 'energy':
+                    meter[key] += 2
+                elif key == 'hygiene':
+                    meter[key] += 3
+                elif key == 'fun':
+                    meter[key] += 4
+                elif key == 'social':
+                    meter[key] += 4
 
-            if key == 'energy' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'energy' and meter['sleeping'] == False:
-                meter[key] += 2
-
-            if key == 'hygiene' and meter['sleeping'] == True:
-                meter[key] += 3
-            if key == 'hygiene' and meter['sleeping'] == False:
-                meter[key] += 3
-
-            if key == 'fun' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'fun' and meter['sleeping'] == False:
-                meter[key] += 4
-
-            if key == 'social' and meter['sleeping'] == True:
-                meter[key] += 0
-            if key == 'social' and meter['sleeping'] == False:
-                meter[key] += 4
-
+            if val > 100:
+                meter[key] = 100
 
 # ---------------------------------------------------------------------
 

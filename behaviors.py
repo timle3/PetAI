@@ -1,4 +1,3 @@
-
 def trivial_behavior(state):
     return True
 
@@ -22,6 +21,9 @@ def eat(state):
 
 def fish_eat(state):
     state["petItems"]["food_in_tank"] -= 1
+    state["petMeters"]["hunger"] -= 20
+    if state["petMeters"]["hunger"] < 0:
+        state["petMeters"]["hunger"] = 0
     print("{} is eating some fish food.".format(state["petName"]))
     return True
 

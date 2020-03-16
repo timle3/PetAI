@@ -1,16 +1,6 @@
 from copy import deepcopy
-import logging
 import random
 import math
-
-def log_execution(fn):
-    def logged_fn(self, state):
-        logging.debug('Executing:' + str(self))
-        result = fn(self, state)
-        logging.debug('Result: ' + str(self) + ' -> ' + ('Success' if result else 'Failure'))
-        return result
-    return logged_fn
-
 
 ############################### Base Classes ##################################
 class Node:
@@ -47,7 +37,6 @@ class Composite(Node):
 
 ############################### Composite Nodes ##################################
 class DogSelector(Composite):
-    @log_execution
     def execute(self, state):
         highest_priority = ((state["petMeters"]["hunger"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
         code = "Hunger"
@@ -87,7 +76,6 @@ class DogSelector(Composite):
 
 
 class CatSelector(Composite):
-    @log_execution
     def execute(self, state):
         highest_priority = ((state["petMeters"]["hunger"] ** 2) / 320) + (state["petMeters"]["hunger"] / 3)
         code = "Hunger"
@@ -131,7 +119,6 @@ class CatSelector(Composite):
                     return child_node.execute(state)
 
 class Selector(Composite):
-    @log_execution
     def execute(self, state):
         for child_node in self.child_nodes:
             success = child_node.execute(state)
@@ -142,7 +129,6 @@ class Selector(Composite):
 
 
 class Sequence(Composite):
-    @log_execution
     def execute(self, state):
         for child_node in self.child_nodes:
             continue_execution = child_node.execute(state)
@@ -152,14 +138,12 @@ class Sequence(Composite):
             return True
 
 class AlwaysTrue(Composite):
-    @log_execution
     def execute(self, state):
         for child_node in self.child_nodes:
             child_node.execute(state)
         return True
 
 class AlwaysFalse(Composite):
-    @log_execution
     def execute(self, state):
         for child_node in self.child_nodes:
             child_node.execute(state)
@@ -170,19 +154,16 @@ class AlwaysFalse(Composite):
 ############################### Decorator Nodes ##################################
 
 class Inverter(Composite):
-    @log_execution
     def execute(self, state):
         return not self.child_nodes[0].execute(state)
 
 
 class Succeeder(Composite):
-    @log_execution
     def execute(self, state):
         self.child_nodes[0].execute(state)
         return True
 
 class Repeater(Composite):
-    @log_execution
     def execute(self, state, max_iterations=-1):
         iterations = 0
         while iterations != max_iterations and self.child_nodes[0].execute(state) != None:
@@ -190,14 +171,12 @@ class Repeater(Composite):
         return
 
 class RepeatUntilFail(Composite):
-    @log_execution
     def execute(self, state):
         while self.child_nodes[0].execute(state):
             pass
         return True
 
 class Probability(Composite):
-    @log_execution
     def execute(self, state, chance=0.5):
         if(random.random() < chance):
             return self.child_nodes[0].execute(state)
@@ -209,7 +188,6 @@ class Check(Node):
     def __init__(self, check_function):
         self.check_function = check_function
 
-    @log_execution
     def execute(self, state):
         return self.check_function(state)
 
@@ -221,7 +199,6 @@ class Action(Node):
     def __init__(self, action_function):
         self.action_function = action_function
 
-    @log_execution
     def execute(self, state):
         return self.action_function(state)
 
