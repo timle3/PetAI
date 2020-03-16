@@ -17,7 +17,10 @@ def check_door(state):
     return state["petItems"]["door_opened"]
 
 def check_bladder(state):
-	return state["petMeters"]["bladder"] == 100
+	return state["petMeters"]["bladder"] in range(90, 100)
+
+def check_sleep(state):
+    return state["petMeters"]["sleeping"]
 
 # For the fish, is the tank clean?
 def pet_feeling_clean(state):

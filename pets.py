@@ -51,7 +51,8 @@ class Dog(Pet):
         print("5. Sleep")
         print("6. Check items")
         print("7. Clean mess")
-        print("8. Give a bath")
+        if not state["petMeters"]["sleeping"]:
+            print("8. Give a bath")
         print()
         try:
             choice = int(input("Enter the number of the action you want to do: "))
@@ -75,8 +76,9 @@ class Dog(Pet):
                     state["petMeters"]["social"] = 0
                 print("You play with {}".format(state["petName"]))
             elif choice == 4:
-                print("You do nothing")
+                print("You do nothing.")
             elif choice == 5:
+                print("You go to sleep...")
                 for _ in range(47):
                     blockPrint()
                     self.increase_meter(state["petMeters"])
@@ -93,7 +95,7 @@ class Dog(Pet):
                     print("The floor is now clean.")
                 else:
                     print("There is no mess to clean!")
-            elif choice == 8:
+            elif choice == 8 and not state["petMeters"]["sleeping"]:
                 state["petMeters"]["hygiene"] = 0
                 print("You give {} a bath".format(state["petName"]))
             else:
@@ -107,10 +109,15 @@ class Dog(Pet):
         root = Selector(name='Dog Behaviors')
 
         # Hygiene branch
-        hygiene_sequence = Sequence(name='dog hygiene sequence')
         check_hygiene = Check(dog_check_hygiene)
+        sleep_checker = Check(check_sleep)
         shaking = Action(dog_shaking)
-        hygiene_sequence.child_nodes = [check_hygiene, shaking]
+        
+        invert_sleep = Inverter()
+        invert_sleep.child_nodes = [sleep_checker]
+
+        hygiene_sequence = Sequence(name='dog hygiene sequence')
+        hygiene_sequence.child_nodes = [invert_sleep, check_hygiene, shaking]
 
         dog_priority_selector = DogSelector(name='Dog Priority')
 
@@ -124,26 +131,36 @@ class Dog(Pet):
         hunger.child_nodes = [bowl_selector, eating]
 
         # Bladder branch
-        bladder = Sequence(name='Bladder')
-        improper_relief_selector = Selector(name='improper relief selector')
         check_door_opened = Check(check_door)
-        improper_relief_always_false = AlwaysFalse(name='improper relief always false')
-        improper_relief_always_false_selector = Selector(name='improper relief always false selector')
-        bark_at_door_sequence = Sequence(name='bark at door sequence')
         check_bladder_full = Check(check_bladder)
         bark_at_door_action = Action(bark_at_door)
         improper_relief_action = Action(improper_relief)
-        bark_at_door_sequence.child_nodes = [check_bladder_full, bark_at_door_action]
-        improper_relief_always_false_selector.child_nodes = [bark_at_door_sequence, improper_relief_action]
-        improper_relief_always_false.child_nodes = [improper_relief_always_false_selector]
-        improper_relief_selector.child_nodes = [check_door_opened, improper_relief_always_false]
         dog_proper_relief_action = Action(dog_proper_relief)
-        bladder.child_node = [improper_relief_selector, dog_proper_relief_action]
+
+        bark_at_door_sequence = Sequence(name='bark at door sequence')
+        bark_at_door_sequence.child_nodes = [check_bladder_full, bark_at_door_action]
+        
+        improper_relief_always_false_selector = Selector(name='improper relief always false selector')
+        improper_relief_always_false_selector.child_nodes = [bark_at_door_sequence, improper_relief_action]
+
+        improper_relief_always_false = AlwaysFalse(name='improper relief always false')
+        improper_relief_always_false.child_nodes = [improper_relief_always_false_selector]
+        
+        improper_relief_selector = Selector(name='improper relief selector')
+        improper_relief_selector.child_nodes = [check_door_opened, improper_relief_always_false]
+        
+        bladder = Sequence(name='Bladder')
+        bladder.child_nodes = [improper_relief_selector, dog_proper_relief_action]
 
         # Fun branch
-        fun = Sequence(name='Fun')
-        running_around_action = Action(running_around)
-        fun.child_nodes = [running_around_action]
+        run_indoor_action = Action(running_around_indoors)
+        run_outdoor_action = Action(running_around_outdoors)
+        
+        run_out_sequence = Sequence(name="run outdoor")
+        run_out_sequence.child_nodes = [check_door_opened, run_outdoor_action]
+
+        fun = Selector(name='Fun')
+        fun.child_nodes = [run_out_sequence, run_indoor_action]
 
         # Social branch
         social = Sequence(name='Social')
@@ -250,6 +267,7 @@ class Cat(Pet):
             elif choice == 4:
                 print("You do nothing")
             elif choice == 5:
+                print("You go to sleep...")
                 for _ in range(47):
                     blockPrint()
                     self.increase_meter(state["petMeters"])

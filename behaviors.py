@@ -98,7 +98,7 @@ def dog_proper_relief(state):
     state["petMeters"]["bladder"] = 0
     return True
 
-def running_around(state):
+def running_around_indoors(state):
     print("{} is running around the house.".format(state["petName"]))
     state["petMeters"]["fun"] -= 20
     if state["petMeters"]["fun"] < 0:
@@ -107,11 +107,29 @@ def running_around(state):
     if state["petMeters"]["energy"] > 100:
         state["petMeters"]["energy"] = 100
 
+    return True
+
+def running_around_outdoors(state):
+    print("{} is running around in backyard.".format(state["petName"]))
+    state["petMeters"]["fun"] -= 25
+    if state["petMeters"]["fun"] < 0:
+        state["petMeters"]["fun"] = 0
+    state["petMeters"]["energy"] += 15
+    if state["petMeters"]["energy"] > 100:
+        state["petMeters"]["energy"] = 100
+    state["petMeters"]["hygiene"] += 10
+    if state["petMeters"]["hygiene"] > 100:
+        state["petMeters"]["hygiene"] = 100
+
+    return True
+
 def barking(state):
     state["petMeters"]["social"] -= 40
     if state["petMeters"]["social"] < 0:
         state["petMeters"]["social"] = 0
     print("{} is barking at you.".format(state["petName"]))
+
+    return True
 
 def swim(state):
     print("{} is swimming around and seems to be doing alright.".format(state["petName"]))
